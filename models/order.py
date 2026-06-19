@@ -24,8 +24,7 @@ class Order(Base):
                                             nullable=False)
     order_date: Mapped[date] = mapped_column(Date, nullable=False)
     order_lines: Mapped[list["OrderLine"]] = relationship("OrderLine", back_populates="order")
-    invoice_id: Mapped[int] = mapped_column(ForeignKey("invoices.id"))
-    invoice: Mapped["Invoice"] = relationship("Invoice", back_populates="order", uselist=False)
+    invoice_id: Mapped[int] = mapped_column(Integer)
 
     @validates("order_number")
     def validate_order_number(self, key, order_number):
