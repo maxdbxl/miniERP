@@ -1,8 +1,10 @@
 from db.database import Base
 from sqlalchemy import Identity, ForeignKey, String, Numeric, Integer, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
+from typing import TYPE_CHECKING
 
-from models import Product
+if TYPE_CHECKING:
+    from models import Product
 
 class Category(Base):
     __tablename__ = "categories"

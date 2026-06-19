@@ -3,15 +3,17 @@ from sqlalchemy import Identity, ForeignKey, String, Numeric, Integer, CheckCons
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from decimal import Decimal
 import re
+from typing import TYPE_CHECKING
 
-from models import Category
+if TYPE_CHECKING:
+    from models import Category
 class Product(Base):
     __tablename__ = "products"
     __table_args__ = (
         CheckConstraint("unit_price_ex_vat >= 0", name="ck_positive_price"),
         CheckConstraint("vat_rate >= 0 AND vat_rate <= 1", name="ck_product_vat_rate"),
         CheckConstraint("sku ~ '^[A-Z]{6}-[0-9]{5}$'", name="ck_valid_sku"),
-        CheckConstraint("current_stock >= 0", name="ck_non_negative_stock")
+        CheckConstraint("current_stock >= 0", name="ck_non_negative_stock"),
     )
     id: Mapped[int] = mapped_column(Identity(always=True), primary_key=True)
     sku: Mapped[str] = mapped_column(String(12), unique=True, nullable=False)

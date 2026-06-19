@@ -2,15 +2,18 @@ from db.database import Base
 from sqlalchemy import Identity, ForeignKey, Integer, CheckConstraint, Enum as SQLEnum, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from datetime import date
-
+from typing import TYPE_CHECKING
 
 from enums.invoice_status import InvoiceStatus
-from models import Customer, Order, InvoiceLine
+if TYPE_CHECKING:
+    from models import Customer, Order, InvoiceLine
+
+
 
 class Invoice(Base):
     __tablename__ = "invoices"
     __table_args__ = (
-        CheckConstraint("invoice_number > 0", name="ck_positive_invoice_number")
+        CheckConstraint("invoice_number > 0", name="ck_positive_invoice_number"),
     )
     id: Mapped[int] = mapped_column(Identity(always=True), primary_key=True)
     invoice_number: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)

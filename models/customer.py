@@ -1,8 +1,10 @@
 from db.database import Base
 from sqlalchemy import Identity, ForeignKey, String, Numeric, Integer, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
+from typing import TYPE_CHECKING
 
-from models import Order, Invoice
+if TYPE_CHECKING:
+    from models import Order, Invoice
 
 class Customer(Base):
     __tablename__ = "customers"
