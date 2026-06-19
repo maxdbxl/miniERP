@@ -4,6 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from decimal import Decimal
 import re
 
+from models import Category
 class Product(Base):
     __tablename__ = "products"
     __table_args__ = (
@@ -17,7 +18,8 @@ class Product(Base):
     description: Mapped[str | None] = mapped_column(String, nullable=True)
     unit_price_ex_vat: Mapped[Decimal] = mapped_column(Numeric(10,2), nullable=False)
     vat_rate: Mapped[Decimal] = mapped_column(Numeric(5,2), nullable=False)
-    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False, default=0)
+    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False)
+    category: Mapped["Category"] = relationship("Category", back_populates="products")
     stock_quantity: Mapped[int] = mapped_column(Integer, nullable=False)
 
     @validates("unit_price_ex_vat")
@@ -36,7 +38,7 @@ class Product(Base):
 
     @validates("sku")
     def validate_sku(self, key, sku: str):
-        pattern = r"^[A-Z]{6}-\d{5}$"
+        pattern = r"^[A-Z]{6}-[0-9]{5}$"
         match = re.fullmatch(pattern, sku)
         if not match:
             raise ValueError("Invalid SKU format")
