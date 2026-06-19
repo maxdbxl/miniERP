@@ -1,12 +1,11 @@
 from db.database import Base
-from sqlalchemy import Identity, ForeignKey, String, Numeric, Integer, CheckConstraint, Enum as SQLEnum, Date
+from sqlalchemy import Identity, ForeignKey, Integer, CheckConstraint, Enum as SQLEnum, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
-from decimal import Decimal
 from datetime import date
 
-from enums.order_status import OrderStatus
+
 from enums.invoice_status import InvoiceStatus
-from models import OrderLine, Customer, Order
+from models import Customer, Order, InvoiceLine
 
 class Invoice(Base):
     __tablename__ = "invoices"
@@ -17,15 +16,16 @@ class Invoice(Base):
     invoice_number: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
     customer_id : Mapped[int] = mapped_column(ForeignKey("customers.id"))
     customer: Mapped["Customer"] = relationship("Customer", back_populates="invoices")
-    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), unique=True)
     order: Mapped["Order"] = relationship("Order", back_populates="invoice")
     issue_date: Mapped[date] = mapped_column(Date, nullable=False)
     due_date: Mapped[date] = mapped_column(Date, nullable=False)
-    status: Mapped[OrderStatus] = mapped_column(SQLEnum(
+    status: Mapped[InvoiceStatus] = mapped_column(SQLEnum(
                                             InvoiceStatus,
-                                            name="status_enum",
+                                            name="invoice_status_enum",
                                             create_constraint=True
                                             ),
                                             nullable=False)
+    invoice_lines: Mapped[list["InvoiceLine"]] = relationship("InvoiceLine", back_populates="invoice")
 
 

@@ -18,13 +18,13 @@ class Order(Base):
     customer: Mapped["Customer"] = relationship("Customer", back_populates="orders")
     status: Mapped[OrderStatus] = mapped_column(SQLEnum(
                                             OrderStatus,
-                                            name="status_enum",
+                                            name="order_status_enum",
                                             create_constraint=True
                                             ),
                                             nullable=False)
     order_date: Mapped[date] = mapped_column(Date, nullable=False)
     order_lines: Mapped[list["OrderLine"]] = relationship("OrderLine", back_populates="order")
-    invoice_id: Mapped[int] = mapped_column(Integer)
+    invoice: Mapped["Invoice"] = relationship("Invoice", back_populates="order", unique=True)
 
     @validates("order_number")
     def validate_order_number(self, key, order_number):
@@ -32,6 +32,3 @@ class Order(Base):
             raise ValueError("Incorrect value: Order Number muste be greater or equal to 1")
         return order_number
     
-    @validates()
-    def ok():
-        pass

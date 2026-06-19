@@ -1,8 +1,8 @@
 from db.database import Base
-from sqlalchemy import Identity, ForeignKey, String, Numeric, Integer, CheckConstraint, Enum as SQLEnum, Date, TIMESTAMP
+from sqlalchemy import Identity, ForeignKey, String, Numeric, Integer, CheckConstraint, Enum as SQLEnum, Date, TIMESTAMP, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from decimal import Decimal
-from datetime import date, time
+from datetime import date, datetime
 
 from enums.order_status import OrderStatus
 from enums.movement_type import MovementType
@@ -21,4 +21,4 @@ class StockMovement(Base):
                                             ),
                                             nullable=False)
     quantity: Mapped[Decimal] = mapped_column(Numeric(10,2), nullable=False)
-    created_at: Mapped[time] = mapped_column(TIMESTAMP, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)

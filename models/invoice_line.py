@@ -12,11 +12,26 @@ if TYPE_CHECKING:
 class InvoiceLine(Base):
     __tablename__ = "invoice_lines"
     __table_args__ = (
+        CheckConstraint("unit_price >= 0", name="ck_positive_price"),
+        CheckConstraint("quantity > 0", name="ck_positive_quantity"),
     )
     id: Mapped[int] = mapped_column(Identity(always=True), primary_key=True)
     invoice_id: Mapped[int] = mapped_column(ForeignKey("invoices.id"))
     invoice: Mapped["Invoice"] = relationship("Invoice", back_populates="invoice_lines")
-    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
-    quantity: Mapped[int] = mapped_column(Integer)
+    description: Mapped[str] = mapped_column(String)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=True)
+    quantity: Mapped[Decimal] = mapped_column(Numeric(10,3), nullable=False)
     unit_price: Mapped[Decimal] = mapped_column(Numeric(10,2), nullable=False)
     vat_rate: Mapped[Decimal] = mapped_column(Numeric(5,2), nullable=False)
+
+    @validates("unit_price")
+    def validate_price(self, key, unit_price):
+        if unit_price < 0:
+            raise ValueError("Incorrect value: price cannot be negative")
+        return unit_price
+    
+    @validates("quantity")
+    def validate_quantity(self, key, quantity):
+        if quantity <= 0:
+            raise ValueError("Incorrect value: quantity must be positive")
+        return quantity
