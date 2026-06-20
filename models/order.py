@@ -3,14 +3,17 @@ from sqlalchemy import Identity, ForeignKey, String, Numeric, Integer, CheckCons
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from decimal import Decimal
 from datetime import date
+from typing import TYPE_CHECKING
+
 
 from enums.order_status import OrderStatus
-from models import OrderLine, Customer, Invoice
+if TYPE_CHECKING:
+    from models import OrderLine, Customer, Invoice
 
 class Order(Base):
     __tablename__ = "orders"
     __table_args__ = (
-        CheckConstraint("order_number > 0", name="ck_positive_order_number")
+        CheckConstraint("order_number > 0", name="ck_positive_order_number"),
     )
     id: Mapped[int] = mapped_column(Identity(always=True), primary_key=True)
     order_number: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
@@ -23,8 +26,8 @@ class Order(Base):
                                             ),
                                             nullable=False)
     order_date: Mapped[date] = mapped_column(Date, nullable=False)
-    order_lines: Mapped[list["OrderLine"]] = relationship("OrderLine", back_populates="order")
-    invoice: Mapped["Invoice"] = relationship("Invoice", back_populates="order", unique=True)
+    order_lines: Mapped[list["OrderLine"]] = relationship("OrderLine", back_populates="order", cascade="all, delete-orphan")
+    invoice: Mapped["Invoice"] = relationship("Invoice", back_populates="order", uselist=False)
 
     @validates("order_number")
     def validate_order_number(self, key, order_number):

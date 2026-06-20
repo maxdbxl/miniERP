@@ -8,6 +8,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from db.database import Base
+from models import Product, Order, OrderLine, Invoice, InvoiceLine, Customer, Category, stock_movement
 
 load_dotenv()
 

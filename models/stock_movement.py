@@ -3,14 +3,17 @@ from sqlalchemy import Identity, ForeignKey, String, Numeric, Integer, CheckCons
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from decimal import Decimal
 from datetime import date, datetime
+from typing import TYPE_CHECKING
 
 from enums.order_status import OrderStatus
 from enums.movement_type import MovementType
-from models import OrderLine, Customer, Invoice
+if TYPE_CHECKING:
+    from models import OrderLine, Customer, Invoice
 
 class StockMovement(Base):
     __tablename__ = "stock_movements"
     __table_args__ = (
+        CheckConstraint("quantity > 0", name="ck_stock_movement_positive_quantity")
     )
     id: Mapped[int] = mapped_column(Identity(always=True), primary_key=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
