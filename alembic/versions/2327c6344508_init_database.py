@@ -1,8 +1,8 @@
 """init database
 
-Revision ID: f3f5e6d72f6a
+Revision ID: 2327c6344508
 Revises: 
-Create Date: 2026-06-20 00:26:12.011953
+Create Date: 2026-06-20 20:05:51.666886
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'f3f5e6d72f6a'
+revision: str = '2327c6344508'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -32,9 +32,8 @@ def upgrade() -> None:
     sa.Column('name', sa.String(length=75), nullable=False),
     sa.Column('vat_number', sa.String(length=50), nullable=False),
     sa.Column('address', sa.String(), nullable=False),
-    sa.Column('customer_number', sa.String(length=50), nullable=False),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('customer_number')
+    sa.CheckConstraint('length(vat_number) >= 8', name='ck_vat_number_length'),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('orders',
     sa.Column('id', sa.Integer(), sa.Identity(always=True), nullable=False),
@@ -72,6 +71,7 @@ def upgrade() -> None:
     sa.Column('issue_date', sa.Date(), nullable=False),
     sa.Column('due_date', sa.Date(), nullable=False),
     sa.Column('status', sa.Enum('DRAFT', 'ISSUED', 'PAID', 'CANCELLED', name='invoice_status_enum', create_constraint=True), nullable=False),
+    sa.CheckConstraint('due_date >= issue_date', name='ck_due_after_issue_date'),
     sa.CheckConstraint('invoice_number > 0', name='ck_positive_invoice_number'),
     sa.ForeignKeyConstraint(['customer_id'], ['customers.id'], ),
     sa.ForeignKeyConstraint(['order_id'], ['orders.id'], ),
@@ -88,9 +88,11 @@ def upgrade() -> None:
     sa.Column('vat_rate', sa.Numeric(precision=5, scale=2), nullable=False),
     sa.CheckConstraint('quantity > 0', name='ck_positive_quantity'),
     sa.CheckConstraint('unit_price >= 0', name='ck_positive_price'),
-    sa.ForeignKeyConstraint(['order_id'], ['orders.id'], ),
+    sa.CheckConstraint('vat_rate >= 0 AND vat_rate <= 1', name='ck_vat_rate'),
+    sa.ForeignKeyConstraint(['order_id'], ['orders.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['product_id'], ['products.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('order_id', 'product_id', name='uq_order_product')
     )
     op.create_table('stock_movements',
     sa.Column('id', sa.Integer(), sa.Identity(always=True), nullable=False),
@@ -98,6 +100,7 @@ def upgrade() -> None:
     sa.Column('movement_type', sa.Enum('INBOUND', 'OUTBOUND', 'ADJUSTMENT', name='movement_type_enum', create_constraint=True), nullable=False),
     sa.Column('quantity', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.CheckConstraint('quantity > 0', name='ck_stock_movement_positive_quantity'),
     sa.ForeignKeyConstraint(['product_id'], ['products.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -111,9 +114,11 @@ def upgrade() -> None:
     sa.Column('vat_rate', sa.Numeric(precision=5, scale=2), nullable=False),
     sa.CheckConstraint('quantity > 0', name='ck_positive_quantity'),
     sa.CheckConstraint('unit_price >= 0', name='ck_positive_price'),
-    sa.ForeignKeyConstraint(['invoice_id'], ['invoices.id'], ),
+    sa.CheckConstraint('vat_rate >= 0 AND vat_rate <= 1', name='ck_vat_rate'),
+    sa.ForeignKeyConstraint(['invoice_id'], ['invoices.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['product_id'], ['products.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('invoice_id', 'product_id', name='uq_invoice_product')
     )
     # ### end Alembic commands ###
 
