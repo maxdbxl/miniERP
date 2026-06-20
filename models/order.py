@@ -26,7 +26,7 @@ class Order(Base):
                                             ),
                                             nullable=False)
     order_date: Mapped[date] = mapped_column(Date, nullable=False)
-    order_lines: Mapped[list["OrderLine"]] = relationship("OrderLine", back_populates="order")
+    order_lines: Mapped[list["OrderLine"]] = relationship("OrderLine", back_populates="order", cascade="all, delete-orphan")
     invoice: Mapped["Invoice"] = relationship("Invoice", back_populates="order", uselist=False)
 
     @validates("order_number")
