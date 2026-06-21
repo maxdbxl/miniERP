@@ -1,5 +1,5 @@
 from db.database import Base
-from sqlalchemy import Identity, ForeignKey, String, Numeric, Integer, CheckConstraint, Enum as SQLEnum, Date
+from sqlalchemy import Identity, ForeignKey, String, Numeric, Integer, CheckConstraint, Enum as SQLEnum, Date, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from decimal import Decimal
 from datetime import date
@@ -17,7 +17,7 @@ class Order(Base):
     )
     id: Mapped[int] = mapped_column(Identity(always=True), primary_key=True)
     order_number: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
-    customer_id : Mapped[int] = mapped_column(ForeignKey("customers.id"))
+    customer_id : Mapped[int] = mapped_column(ForeignKey("customers.id"), nullable=False)
     customer: Mapped["Customer"] = relationship("Customer", back_populates="orders")
     status: Mapped[OrderStatus] = mapped_column(SQLEnum(
                                             OrderStatus,
@@ -25,7 +25,7 @@ class Order(Base):
                                             create_constraint=True
                                             ),
                                             nullable=False)
-    order_date: Mapped[date] = mapped_column(Date, nullable=False)
+    order_date: Mapped[date] = mapped_column(Date, nullable=False, server_default=text("CURRENT_DATE"))
     order_lines: Mapped[list["OrderLine"]] = relationship("OrderLine", back_populates="order", cascade="all, delete-orphan")
     invoice: Mapped["Invoice"] = relationship("Invoice", back_populates="order", uselist=False)
 
