@@ -31,7 +31,7 @@ class CustomerService:
         except IntegrityError as e:
             session.rollback()
 
-            if "uq_customer_vat_number" in str(e.orig):
+            if "uq_customers_vat_number" in str(e.orig):
                 raise CustomerAlreadyExistsError()
             raise
         return customer
