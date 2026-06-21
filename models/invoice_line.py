@@ -15,7 +15,7 @@ class InvoiceLine(Base):
         CheckConstraint("unit_price >= 0", name="ck_positive_price"),
         CheckConstraint("quantity > 0", name="ck_positive_quantity"),
         CheckConstraint("vat_rate >= 0 AND vat_rate <= 1", name="ck_vat_rate"),
-        UniqueConstraint("order_id", "product_id", name="uq_order_product"),
+        UniqueConstraint("invoice_id", "product_id", name="uq_invoice_product"),
     )
     id: Mapped[int] = mapped_column(Identity(always=True), primary_key=True)
     invoice_id: Mapped[int] = mapped_column(ForeignKey("invoices.id", ondelete="CASCADE"))

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class StockMovement(Base):
     __tablename__ = "stock_movements"
     __table_args__ = (
-        CheckConstraint("quantity > 0", name="ck_stock_movement_positive_quantity")
+        CheckConstraint("quantity > 0", name="ck_stock_movement_positive_quantity"),
     )
     id: Mapped[int] = mapped_column(Identity(always=True), primary_key=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)

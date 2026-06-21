@@ -14,7 +14,7 @@ DATABASE_URL = (
     f"{os.getenv('POSTGRES_DB')}"
 )
 
-engin = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=True)
 
 class Base(DeclarativeBase):
     pass
