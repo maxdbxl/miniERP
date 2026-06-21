@@ -8,7 +8,7 @@ from services.customer_service import customer_service
 from db.session import get_session
 
 router = APIRouter()
-
+#TODO: harmoniser routers (prefix et tags) dans main ou dans router
 @router.get("/{customer_id}", response_model=CustomerResponse)
 def get_customer(customer_id: int, session: Session = Depends(get_session)):
     try:
