@@ -23,7 +23,7 @@ class Product(Base):
     vat_rate: Mapped[Decimal] = mapped_column(Numeric(5,2), nullable=False)
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False)
     category: Mapped["Category"] = relationship("Category", back_populates="products")
-    current_stock: Mapped[int] = mapped_column(Integer, nullable=False)
+    current_stock: Mapped[Decimal] = mapped_column(Numeric(10,3), nullable=False)
 
     @validates("unit_price_ex_vat")
     def validate_price(self, key, unit_price_ex_vat):
@@ -48,7 +48,7 @@ class Product(Base):
         return sku
     
     @validates("current_stock")
-    def validate_current_stock(self, key, current_stock):
+    def validate_current_stock(self, key, current_stock: Decimal):
         if current_stock < 0:
             raise ValueError("Incorrect value: stock cannot be negative")
         return current_stock
