@@ -1,5 +1,5 @@
 from db.database import Base
-from sqlalchemy import Identity, ForeignKey, String, Numeric, Integer, CheckConstraint
+from sqlalchemy import Identity, ForeignKey, String, Numeric, Integer, CheckConstraint, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from sqlalchemy.ext.hybrid import hybrid_property
 from typing import TYPE_CHECKING
@@ -11,6 +11,7 @@ class Customer(Base):
     __tablename__ = "customers"
     __table_args__ = (
         CheckConstraint("length(vat_number) >= 8", name="ck_vat_number_length"),
+        UniqueConstraint("vat_number", name="uq_customers_vat_number")
     )
     id: Mapped[int] = mapped_column(Identity(always=True), primary_key=True)
     name: Mapped[str] = mapped_column(String(75), nullable=False)

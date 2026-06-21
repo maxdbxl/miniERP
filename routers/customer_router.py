@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from schemas.customer_schema import CustomerResponse, CustomerCreate
+from exceptions.customer_exceptions import CustomerNotFoundError, WrongVATNumberError, CustomerAlreadyExistsError
 from services.customer_service import customer_service
 from db.session import get_session
 
@@ -12,7 +13,7 @@ router = APIRouter()
 def get_customer(customer_id: int, session: Session = Depends(get_session)):
     try:
         return customer_service.get_customer(session=session, customer_id=customer_id)
-    except ValueError:
+    except CustomerNotFoundError:
         raise HTTPException(status_code=404, detail="Customer not found")
 
 
@@ -20,19 +21,11 @@ def get_customer(customer_id: int, session: Session = Depends(get_session)):
 def create_customer(data: CustomerCreate, session: Session = Depends(get_session)):
     try:
         customer = customer_service.add_customer(session=session, data=data)
-        session.commit()
-        session.refresh(customer)
         return customer
-    except IntegrityError as e:
-        session.rollback()
-        print("test")
-        print(e.orig)
+    except CustomerAlreadyExistsError:
         raise HTTPException(
-            status_code=409
+            status_code=409,
+            detail="Customer already exists"
         )
-        
 
-    #possible de vérifier quelle integrity error :
-    # if "uq_customer_vat_number" in error:
-    #     raise HTTPException(status_code=409, detail="VAT number already exists")
 

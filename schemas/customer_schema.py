@@ -1,10 +1,10 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 class CustomerResponse(BaseModel):
     id: int
     name: str
     vat_number: str
-    address: str
+    address: str | None
     customer_number: str
 
     #pour hybrid-property customer_number
@@ -14,5 +14,5 @@ class CustomerResponse(BaseModel):
 
 class CustomerCreate(BaseModel):
     name: str
-    vat_number: str
+    vat_number: str = Field(min_length=8)
     address: str | None = None

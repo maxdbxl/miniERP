@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from repositories.customer_repository import CustomerRepository
 from schemas.customer_schema import CustomerCreate
 from models import Customer
+from exceptions.customer_exceptions import CustomerAlreadyExistsError, CustomerNotFoundError
 
 class CustomerService:
 
@@ -13,17 +15,26 @@ class CustomerService:
         customer = self.repository.get_customer_by_id(session, customer_id)
         # à remplacer par CustomerNotFoundException par la suite
         if customer is None:
-            raise ValueError(f"Customer {customer_id} not found")
+            raise CustomerNotFoundError()
         return customer
     
     def add_customer(self, session: Session, data: CustomerCreate) -> Customer:
-        
-        return self.repository.create_customer(
-            session, 
-            name=data.name, 
-            vat_number=data.vat_number, 
-            address=data.address
-            )
+        try:
+            customer = self.repository.create_customer(
+                session, 
+                name=data.name, 
+                vat_number=data.vat_number, 
+                address=data.address
+                )
+            session.commit()
+            session.refresh(customer)
+        except IntegrityError as e:
+            session.rollback()
+
+            if "uq_customer_vat_number" in str(e.orig):
+                raise CustomerAlreadyExistsError()
+            raise
+        return customer
 
     
 
