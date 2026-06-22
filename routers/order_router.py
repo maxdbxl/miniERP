@@ -15,10 +15,11 @@ router = APIRouter(prefix="/orders", tags=["Orders"])
 def create_order(data: OrderCreate, session: Session = Depends(get_session)):
     try:
         order = order_service.create_order(session, customer_id=data.customer_id)
-
+        session.commit()
         session.refresh(order)
         return order
     except CustomerNotFoundError:
+        session.rollback()
         raise HTTPException(status_code=404, detail="Customer not found")
     
 @router.get("/", response_model=OrderResponse)
@@ -42,6 +43,7 @@ def add_line(order_id: int,
             quantity=data.quantity
         )
         order = order_service.repository.get_order_by_id(session, order_id)
+        session.commit()
         session.refresh(order)
         return order
     
@@ -62,7 +64,7 @@ def confirm_order(order_id: int, session: Session = Depends(get_session)):
             session=session,
             order_id=order_id
         )
-
+        
         session.refresh(order)
         return order
     

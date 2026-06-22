@@ -33,7 +33,7 @@ def upgrade() -> None:
     op.create_check_constraint(
     'ck_order_number_format',
     'orders',
-    r"order_number ~ '^[0-9]{4}-[0-9]{5}$'"
+    r"order_number ~ '^[0-9]{4}-[0-9]{7}$'"
 )
     # ### end Alembic commands ###
 
@@ -50,7 +50,8 @@ def downgrade() -> None:
     op.alter_column('orders', 'order_number',
                existing_type=sa.String(length=12),
                type_=sa.INTEGER(),
-               existing_nullable=False)
+               existing_nullable=False,
+               postgresql_using="NULL")
     
     op.create_check_constraint(
         'ck_positive_order_number',
