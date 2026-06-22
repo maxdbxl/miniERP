@@ -21,9 +21,22 @@ class OrderLine(Base):
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"))
     order: Mapped["Order"] = relationship("Order", back_populates="order_lines")
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
+    product: Mapped["Product"] = relationship("Product")
     quantity: Mapped[Decimal] = mapped_column(Numeric(10,3), nullable=False)
     unit_price: Mapped[Decimal] = mapped_column(Numeric(10,2), nullable=False)
     vat_rate: Mapped[Decimal] = mapped_column(Numeric(5,2), nullable=False)
+
+    @property
+    def total_ex_vat(self):
+        return self.unit_price * self.quantity
+    
+    @property
+    def total_vat(self):
+        return self.total_ex_vat * self.vat_rate
+    
+    @property
+    def total_in_vat(self):
+        return self.total_ex_vat + self.total_vat
 
     @validates("unit_price")
     def validate_price(self, key, unit_price):

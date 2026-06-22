@@ -17,11 +17,13 @@ class StockMovement(Base):
     )
     id: Mapped[int] = mapped_column(Identity(always=True), primary_key=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False)
+    #TODO: rajouter une référence pour order_id ou purchase_id
+    #reference: Mapped[str] ForeignKey ?
     movement_type: Mapped[MovementType] = mapped_column(SQLEnum(
                                             MovementType,
                                             name="movement_type_enum",
                                             create_constraint=True
                                             ),
                                             nullable=False)
-    quantity: Mapped[Decimal] = mapped_column(Numeric(10,2), nullable=False)
+    quantity: Mapped[Decimal] = mapped_column(Numeric(10,3), nullable=False)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
