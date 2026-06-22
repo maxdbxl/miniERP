@@ -64,3 +64,10 @@ class ProductUpdate(BaseModel):
         default=None,
         ge=0
     )
+
+class ProductNested(BaseModel):
+    id: int
+    sku: str
+    name: str
+
+    model_config = ConfigDict(from_attributes=True)

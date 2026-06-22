@@ -1,6 +1,6 @@
 from enum import Enum
 
-class MovementType(Enum):
-    INBOUND = 1
-    OUTBOUND = 2
-    ADJUSTMENT = 3
+class MovementType(str, Enum):
+    INBOUND = "INBOUND"
+    OUTBOUND = "OUTBOUND"
+    ADJUSTMENT = "ADJUSTMENT"

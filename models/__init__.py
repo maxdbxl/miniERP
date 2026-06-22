@@ -5,5 +5,6 @@ from .customer import Customer
 from .category import Category
 from .invoice import Invoice
 from .invoice_line import InvoiceLine
+from .stock_movement import StockMovement
 
-__all__ = ["Product", "Order", "OrderLine", "Customer", "Category", "Invoice", "InvoiceLine"]
+__all__ = ["Product", "Order", "OrderLine", "Customer", "Category", "Invoice", "InvoiceLine", "StockMovement"]
